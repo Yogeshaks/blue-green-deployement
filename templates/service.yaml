@@ -31,6 +31,8 @@ Parameters:
   IsProduction:
     Type: String
 
+  ContainerPort:
+    Type: Number
 
 Resources:
 
@@ -106,7 +108,7 @@ Resources:
       TaskDefinition: !Ref TaskDefinition
       LoadBalancers:
         - ContainerName: simple-app
-          ContainerPort: 80
+          ContainerPort: !Ref ContainerPort
           TargetGroupArn: !Ref TargetGroup
 
   TaskDefinition:
@@ -128,7 +130,7 @@ Resources:
             - SourceVolume: my-vol
               ContainerPath: /var/www/my-vol
           PortMappings:
-            - ContainerPort: 80
+            - ContainerPort: !Ref ContainerPort
           Environment:
             - Name: Tag
               Value: !Ref Tag

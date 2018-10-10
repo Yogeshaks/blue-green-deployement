@@ -9,7 +9,7 @@ Parameters:
 
   GitHubRepo:
     Type: String
-    Default: ecs-demo-php-simple-app
+    Default: aws-ecs-demo-php
     Description: The repo name of the sample service.
     AllowedPattern: "[A-Za-z0-9_.-]*"
     MaxLength: 50
@@ -29,6 +29,11 @@ Parameters:
     Description: >
       S3 Bucket used for nested templates
 
+  ContainerPort:
+    Type: Number
+    Default: 80
+    Description: >
+      Port number that container service listens on (e.g. Apache 80/tcp, Gunicorn 8000/tcp)
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -66,6 +71,7 @@ Resources:
         Subnet2: !GetAtt VPC.Outputs.Subnet2
         VpcId: !GetAtt VPC.Outputs.VpcId
         VpcCIDR: 10.215.0.0/16
+        ContainerPort: !Ref ContainerPort
 
   VPC:
     Type: AWS::CloudFormation::Stack

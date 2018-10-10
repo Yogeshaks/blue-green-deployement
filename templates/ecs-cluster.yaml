@@ -40,6 +40,8 @@ Parameters:
     Description: >
       S3 Bucket used for nested templates
 
+  ContainerPort:
+    Type: Number
 
 Mappings:
   AWSRegionToAMI:
@@ -198,6 +200,7 @@ Resources:
         Repository: !Ref Repository
         Identifier: "Code2"
         IsProduction: False
+        ContainerPort: !Ref ContainerPort
 
   BlueService:
     Type: AWS::CloudFormation::Stack
@@ -213,6 +216,7 @@ Resources:
         Repository: !Ref Repository
         Identifier: "Code1"
         IsProduction: True
+        ContainerPort: !Ref ContainerPort
 
 
 Outputs:

@@ -1,8 +1,54 @@
-# **NOTE:** Same reference architecture, but using [AWS Fargate](https://aws.amazon.com/fargate/) is available in [fargate branch](https://github.com/awslabs/ecs-blue-green-deployment/tree/fargate)
+# Getting started with CI/CD using Docker Containers, CodePipeline, CodeBuild, and ECS
+Springfield Amazon Web Services User Group (SGF AWS) \
+Jason Klein, Logic Forte \
+October 2018
 
+This deployment code was demonstrated in the SGF AWS October 2018 meeting. If you missed the live demonstration, [Watch the YouTube Video](https://www.youtube.com/watch?v=KSbo-gK18X0).
+
+## Quick Start Guide
+
+TL;DR version. Refer to the original README content below for full details.
+ 1. Create an S3 bucket that will host your CloudFormation templates and scripts, as well as your Laravel or Django configuration file
+ 1. Fork the [aws-ecs-demo-php](https://github.com/sgf-aws/aws-ecs-demo-php) repo to your GitHub account
+ 1. Create a [GitHub API token](https://github.com/settings/tokens) with "admin:repo_hook" and "repo" permissions
+ 1. Configure the AWS CLI (run ```aws configure```) so the script can upload files to S3 and launch the CloudFormation template
+ 1. Run the script ```bin/deploy```
+
+You will be asked for the S3 bucket name, your GitHub username, and your GitHub token. 
+The code will automatically deploy the PHP app from your "aws-ecs-demo-php" repo every your repo it is updated. 
+
+Once you have the basic PHP app running, follow these steps to launch the 
+[Laravel app](https://github.com/sgf-aws/aws-ecs-demo-laravel) or the 
+[Django app](https://github.com/sgf-aws/aws-ecs-demo-django):
+ 1. Fork the repo to your GitHub account 
+    ([Laravel](https://github.com/sgf-aws/aws-ecs-demo-laravel) or 
+    [Django](https://github.com/sgf-aws/aws-ecs-demo-django))
+ 1. Launch the CloudFormation Stack for [Laravel RDS](https://github.com/sgf-aws/aws-ecs-docker-laravel-django/blob/master/aws/laravel-rds.yml) or [Django RDS](https://github.com/sgf-aws/aws-ecs-docker-laravel-django/blob/master/aws/django-rds.yml) as discussed at our last meeting
+ 1. Configure your Laravel or Django app. Use database settings from CloudFormation Stack. 
+    See [Laravel README](https://github.com/sgf-aws/aws-ecs-demo-laravel/blob/master/README.md) or 
+    [Django README](https://github.com/sgf-aws/aws-ecs-demo-django/blob/master/README.md) for full details. TL;DR-
+    * Laravel: Copy ```.env.example``` to ```.env``` and configure DB_ settings; run ```php artisan key:generate``` and ```php artisan package:discover```.
+    * Django: Copy ```.env.example.dev``` to ```.env``` and configure DATABASE_ and SECRET_KEY settings
+ 1. Push the config file to your S3 bucket (edit DST in ```docker/push-config-s3.sh```, then run the script)
+ 1. Edit the Default GitHub repo under Parameters near top of the ```ecs-blue-green-deployment.yaml``` file
+ 1. Run ```bin/deploy``` again and deploy a new stack
+
+Monitor progress in the [CloudFormation Console](https://console.aws.amazon.com/cloudformation/) and the [CodePipeline Console](https://console.aws.amazon.com/codepipeline/). 
+Your Laravel or Django app will have 8 stacks (as shown below).
+When the stacks are complete, browse to the "ServiceURL" shown in the Output of your "ecs-cluster-LoadBalancer" CloudFormation Stack.
+
+![cloudformation](images/sgfaws-cloudformation-50.png)
+
+Congrats! Your Django app is up and running!
+
+![djanog](images/sgfaws-django-50.png)
+
+# Original README
 # Blue/Green deployments on ECS
 
 This reference architecture is in reference to blog post on [blue green deployments on ECS](https://aws.amazon.com/blogs/compute/bluegreen-deployments-with-amazon-ecs/). It creates a continuous delivery by leveraging AWS CloudFormation templates. The templates creates resources using Amazon's Code* services to build and deploy containers onto an ECS cluster as long running services. It also includes a manual approval step facilitated by lambda function that discovers and swaps target group rules between 2 target groups, promoting the green version to production and demoting the blue version to staging.
+
+### **NOTE:** Same reference architecture, but using [AWS Fargate](https://aws.amazon.com/fargate/) is available in [fargate branch](https://github.com/awslabs/ecs-blue-green-deployment/tree/fargate)
 
 ## Pre-Requisites
 This example uses [AWS Command Line Interface](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html) to run Step-3 below.
